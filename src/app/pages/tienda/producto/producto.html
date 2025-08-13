@@ -1,0 +1,154 @@
+<!-- producto.html -->
+<div class="max-w-4xl mx-auto p-6">
+
+  <!-- Botón volver -->
+  <div class="mb-6">
+    <a routerLink="/tienda" class="inline-flex items-center text-blue-600 hover:text-blue-800">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Volver a la tienda
+    </a>
+  </div>
+
+  <!-- Loading state -->
+  @if (loading()) {
+    <div class="flex items-center justify-center h-64">
+      <div class="flex items-center space-x-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span class="text-gray-600">Cargando producto...</span>
+      </div>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <div class="text-red-600 mb-4">
+        <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-lg font-medium">{{ error() }}</p>
+      </div>
+      <div class="space-x-3">
+        <button
+          (click)="onClearError()"
+          class="px-4 py-2 text-sm text-red-600 border border-red-300 rounded hover:bg-red-50">
+          Cerrar
+        </button>
+        <button
+          (click)="onReload()"
+          class="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700">
+          Reintentar
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Producto cargado -->
+  @if (product() && !loading()) {
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+      <div class="grid md:grid-cols-2 gap-8 p-8">
+
+        <!-- Imagen del producto -->
+        <div class="bg-gray-100 rounded-lg flex items-center justify-center p-8">
+          <img
+            [src]="product()!.image"
+            [alt]="product()!.title"
+            class="max-w-full max-h-80 object-contain"
+          />
+        </div>
+
+        <!-- Información del producto -->
+        <div class="space-y-6">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+              {{ product()!.title }}
+            </h1>
+            @if (product()!.category) {
+              <span class="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+                {{ product()!.category }}
+              </span>
+            }
+          </div>
+
+          <div class="text-4xl font-bold text-green-600">
+            {{ product()!.price | currency: 'USD' }}
+          </div>
+
+          @if (product()!.description) {
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Descripción</h3>
+              <p class="text-gray-700 leading-relaxed">
+                {{ product()!.description }}
+              </p>
+            </div>
+          }
+
+          <!-- Acciones -->
+          <div class="space-y-3">
+            <button class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              Agregar al carrito
+            </button>
+            <button class="w-full border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors">
+              Comprar ahora
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="mt-8 bg-gray-50 rounded-lg p-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">Información del producto</h3>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="font-medium text-gray-700">ID:</span>
+          <span class="text-gray-600 ml-2">{{ product()!.id }}</span>
+        </div>
+        @if (product()!.category) {
+          <div>
+            <span class="font-medium text-gray-700">Categoría:</span>
+            <span class="text-gray-600 ml-2">{{ product()!.category }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Debug info (opcional - remover en producción) -->
+  <!-- @if (product()) { -->
+  <!--   <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-xs"> -->
+  <!--     <h4 class="font-medium text-yellow-800 mb-2">Debug Info:</h4> -->
+  <!--     <pre class="text-yellow-700">{{ product() | json }}</pre> -->
+  <!--   </div> -->
+  <!-- } -->
+  <!---->
+</div>
+
+<!--
+=====================================
+VERSIÓN SIMPLE (si prefieres algo más básico)
+=====================================
+
+<div class="container mx-auto p-4">
+  @if (loading()) {
+    <p>Cargando producto...</p>
+  }
+
+  @if (error()) {
+    <div class="error">{{ error() }}</div>
+  }
+
+  @if (product()) {
+    <div class="product-detail">
+      <img [src]="product()!.image" [alt]="product()!.title" />
+      <h1>{{ product()!.title }}</h1>
+      <p class="price">{{ product()!.price | currency: 'USD' }}</p>
+      <p class="description">{{ product()!.description }}</p>
+    </div>
+  }
+
+  <a routerLink="/tienda">← Volver a la tienda</a>
+</div>
+-->
