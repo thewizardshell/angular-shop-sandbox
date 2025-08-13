@@ -1,200 +1,184 @@
-// =====================================
-// CONCEPTOS FUNDAMENTALES
-// =====================================
+# Conceptos Fundamentales
 
+```ts
 // 1. SIGNAL BÁSICO (writable)
-const basicSignal = signal({ name: 'Juan', age: 25 });
-// Se puede modificar: basicSignal.set({ name: 'María', age: 30 })
+const basicSignal = signal({ name: "Juan", age: 25 });
+// Se puede modificar:
+// basicSignal.set({ name: 'María', age: 30 })
 
 // 2. COMPUTED SIGNAL (readonly)
 const displayName = computed(() => `Hola, ${basicSignal().name}`);
 // NO se puede modificar directamente, se recalcula automáticamente
+```
 
-// =====================================
-// CÓDIGO
-// =====================================
+---
 
+# Código Ejemplo
+
+```ts
 // Signal privado que contiene TODO el estado
 private state = signal<ProductState>({
-data: [], // Los productos
-loading: false, // Si está cargando
-error: null // Mensaje de error
+  data: [],       // Los productos
+  loading: false, // Si está cargando
+  error: null     // Mensaje de error
 });
+```
 
-// 🔍 LÍNEA 1: Extraer solo los productos
+---
+
+## 🔍 Línea 1: Extraer solo los productos
+
+```ts
 readonly products = computed(() => this.state().data);
-/\*
-¿Qué hace?
+```
 
-- Lee el state completo
-- Extrae SOLO la propiedad .data
-- Retorna un array de productos
-- Se actualiza automáticamente cuando state cambia
+- Lee el estado completo.
+- Extrae **solo** la propiedad `.data`.
+- Retorna un array de productos.
+- Se actualiza automáticamente cuando cambia el estado.
 
-¿Por qué computed y no signal?
+**¿Por qué usar `computed` y no `signal`?**
 
-- Es READONLY (no se puede modificar desde afuera)
-- Se recalcula solo cuando state.data cambia
-- Más eficiente que re-renderizar todo
-  \*/
+- Es **readonly** (no modificable desde afuera).
+- Se recalcula solo cuando `state.data` cambia.
+- Más eficiente que re-renderizar todo.
 
-// 🔍 LÍNEA 2: Extraer estado de loading
+---
+
+## 🔍 Línea 2: Extraer estado de `loading`
+
+```ts
 readonly loading = computed(() => this.state().loading);
-/\*
-¿Qué hace?
+```
 
-- Extrae SOLO el booleano loading del state
-- El template puede usar loading() para mostrar spinners
-- Se actualiza cuando cambia el estado de carga
-  \*/
+- Extrae solo el booleano `loading` del estado.
+- El template puede usar `loading()` para mostrar spinners.
+- Se actualiza cuando cambia el estado de carga.
 
-// 🔍 LÍNEA 3: Extraer errores
+---
+
+## 🔍 Línea 3: Extraer errores
+
+```ts
 readonly error = computed(() => this.state().error);
-/\*
-¿Qué hace?
+```
 
-- Extrae el mensaje de error (string | null)
-- null = no hay error
-- string = hay un error con mensaje
-- El template puede mostrar/ocultar mensajes de error
-  \*/
+- Extrae el mensaje de error (`string | null`).
+- `null` significa que no hay error.
+- El template puede mostrar u ocultar mensajes de error.
 
-// 🔍 LÍNEA 4: Calcular si hay productos (DERIVADO)
+---
+
+## 🔍 Línea 4: Calcular si hay productos (DERIVADO)
+
+```ts
 readonly hasProducts = computed(() => this.products().length > 0);
-/\*
-¿Qué hace?
+```
 
-- Usa OTRO computed (this.products())
-- Calcula si hay al menos 1 producto
-- Retorna true/false
-- Se recalcula cuando products() cambia
-- ¡DOBLE REACTIVIDAD! state -> products -> hasProducts
-  \*/
+- Usa otro `computed` (`this.products()`).
+- Calcula si hay al menos un producto.
+- Retorna `true` o `false`.
+- Se recalcula cuando `products()` cambia.
 
-// 🔍 LÍNEA 5: Contar productos (DERIVADO)
+**¡Doble reactividad!**
+
+`state` → `products` → `hasProducts`
+
+---
+
+## 🔍 Línea 5: Contar productos (DERIVADO)
+
+```ts
 readonly productsCount = computed(() => this.products().length);
-/\*
-¿Qué hace?
+```
 
-- Cuenta cuántos productos hay
-- También usa this.products()
-- Se actualiza automáticamente
-- Útil para mostrar "Mostrando 10 productos"
-  \*/
+- Cuenta cuántos productos hay.
+- También usa `this.products()`.
+- Se actualiza automáticamente.
+- Útil para mostrar mensajes tipo: _Mostrando 10 productos_.
 
-// =====================================
-// EJEMPLO VISUAL DEL FLUJO
-// =====================================
+---
 
+# Ejemplo Visual del Flujo
+
+```ts
 class ExampleService {
-// 1️⃣ ESTADO CENTRAL (1 signal que controla todo)
-private state = signal({
-data: [],
-loading: false,
-error: null
-});
+  // 1️⃣ Estado central (1 signal que controla todo)
+  private state = signal({
+    data: [],
+    loading: false,
+    error: null,
+  });
 
-// 2️⃣ COMPUTED SIGNALS (se derivan del estado)
-readonly products = computed(() => {
-console.log('🔄 Recalculando products...');
-return this.state().data;
-});
+  // 2️⃣ Computed signals (derivados del estado)
+  readonly products = computed(() => {
+    console.log("🔄 Recalculando products...");
+    return this.state().data;
+  });
 
-readonly loading = computed(() => {
-console.log('🔄 Recalculando loading...');
-return this.state().loading;
-});
+  readonly loading = computed(() => {
+    console.log("🔄 Recalculando loading...");
+    return this.state().loading;
+  });
 
-readonly hasProducts = computed(() => {
-console.log('🔄 Recalculando hasProducts...');
-return this.products().length > 0; // ¡Depende de products!
-});
+  readonly hasProducts = computed(() => {
+    console.log("🔄 Recalculando hasProducts...");
+    return this.products().length > 0; // ¡Depende de products!
+  });
 
-// 3️⃣ CUANDO CAMBIAS EL ESTADO
-async loadProducts() {
-// Esto dispara TODOS los computed que dependen de state
-this.state.set({
-data: [],
-loading: true, // ← loading() se recalcula
-error: null
-});
+  // 3️⃣ Cuando cambias el estado
+  async loadProducts() {
+    // Esto dispara todos los computed que dependen de state
+    this.state.set({
+      data: [],
+      loading: true, // ← loading() se recalcula
+      error: null,
+    });
 
     try {
-      const data = await fetch('/api/products').then(r => r.json());
+      const data = await fetch("/api/products").then((r) => r.json());
 
-      // Esto dispara MÁS recálculos
+      // Esto dispara más recálculos
       this.state.set({
-        data: data,        // ← products() se recalcula
-        loading: false,    // ← loading() se recalcula
-        error: null
+        data: data, // ← products() se recalcula
+        loading: false, // ← loading() se recalcula
+        error: null,
       });
       // hasProducts() también se recalcula porque depende de products()
-
     } catch (err) {
       this.state.set({
         data: [],
         loading: false,
-        error: 'Error!'  // ← error() se recalcula
+        error: "Error!", // ← error() se recalcula
       });
     }
-
+  }
 }
-}
+```
 
-// =====================================
-// COMPARACIÓN: ANTES vs AHORA
-// =====================================
+---
 
-// ❌ ANTES (Angular clásico)
-class OldService {
-products$ = new BehaviorSubject<Product[]>([]);
-loading$ = new BehaviorSubject<boolean>(false);
-error$ = new BehaviorSubject<string | null>(null);
+# Comparación: Antes vs Ahora
 
-// En el componente necesitabas:
-// products$ | async
-// loading$ | async  
- // error$ | async
-// ¡3 subscripciones diferentes!
-}
+| Antes (Angular clásico)                              | Ahora (Con signals)                                            |                                                   |
+| ---------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------- |
+| `BehaviorSubject<Product[]>` para productos          | `signal` privado que controla todo el estado                   |                                                   |
+| `BehaviorSubject<boolean>` para loading              | `computed` para exponer solo lectura                           |                                                   |
+| \`BehaviorSubject\<string                            | null>\` para errores                                           | Sin suscripciones, solo uso directo de `computed` |
+| Se necesitan múltiples subscripciones (`async` pipe) | Acceso directo a valores: `products()`, `loading()`, `error()` |                                                   |
 
-// ✅ AHORA (Con signals)
-class NewService {
-private state = signal({ data: [], loading: false, error: null });
+---
 
-readonly products = computed(() => this.state().data);
-readonly loading = computed(() => this.state().loading);
-readonly error = computed(() => this.state().error);
+# Ventajas de este patrón
 
-// En el componente solo necesitas:
-// products()
-// loading()
-// error()
-// ¡Sin subscripciones!
-}
+- ✅ **Rendimiento**
+  Solo se recalcula lo que realmente cambió. Angular actualiza el DOM exactamente donde debe.
 
-// =====================================
-// VENTAJAS DE ESTE PATRÓN
-// =====================================
+- ✅ **Encapsulamiento**
+  El estado es privado y los `computed` son readonly, evitando modificaciones externas.
 
-/\*
-✅ RENDIMIENTO:
+- ✅ **Composabilidad**
+  Puedes derivar valores (como `hasProducts`) que dependen de otros `computed`.
 
-- Solo se recalcula lo que realmente cambió
-- Angular sabe exactamente qué actualizar en el DOM
-
-✅ ENCAPSULAMIENTO:
-
-- state es privado (nadie puede modificarlo desde afuera)
-- Los computed son readonly (solo lectura)
-
-✅ COMPOSABILIDAD:
-
-- hasProducts depende de products
-- Si products cambia, hasProducts se actualiza automáticamente
-
-✅ SIMPLICIDAD:
-
-- No más subscribe/unsubscribe
-- No más async pipes
-- Menos código, más expresivo
+- ✅ **Simplicidad**
+  No más subscribe/unsubscribe ni async pipes. Menos código y más expresivo.
