@@ -1,15 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, CommonModule],
+  imports: [RouterModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
 export class Header {
-  isMenuOpen = false;
+  isMenuOpen = signal(false);
 
   navigation = [
     { title: 'Customers', path: 'javascript:void(0)' },
@@ -19,6 +18,6 @@ export class Header {
   ];
 
   toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
+    this.isMenuOpen.set(!this.isMenuOpen());
   }
 }
